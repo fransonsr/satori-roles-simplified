@@ -18,7 +18,7 @@ public class Example {
 	}
 
 	/**
-	 * Assign role to user under authority of currentUser.
+	 * Assign role to user under the authority of currentUser.
 	 * @param user target user
 	 * @param role role to assign
 	 * @param currentUser current user
@@ -27,6 +27,23 @@ public class Example {
 	public void assignRole(User user, Role role, User currentUser) {
 		if (authorizationManager.isAuthorized(currentUser, ADMIN_ROLE)) {
 			user.getRoles().add(role);
+		}
+		else {
+			throw new RuntimeException("Unauthorized");
+		}
+	}
+
+	/**
+	 * Assign project role to user under the authority of currentUser.
+	 * @param user target user
+	 * @param project project
+	 * @param role role to assign
+	 * @param currentUser current user
+	 * @throws RuntimeException if currentUser is not authorized to assign a role
+	 */
+	public void assignProjectRole(User user, Project project, Role role, User currentUser) {
+		if (authorizationManager.isAuthorized(currentUser, project, ADMIN_ROLE)) {
+			project.addRoleForUser(user, role);
 		}
 		else {
 			throw new RuntimeException("Unauthorized");

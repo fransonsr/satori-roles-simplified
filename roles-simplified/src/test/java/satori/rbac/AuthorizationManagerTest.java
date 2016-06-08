@@ -10,9 +10,11 @@ public class AuthorizationManagerTest {
 
 	AuthorizationManager test;
 	User user;
-	Role baseUserRole;
-	Role advancedUserRole;
-	Role adminUserRole;
+	Project project;
+
+	Role baseRole;
+	Role advancedRole;
+	Role adminRole;
 	Role superHeroRole;
 
 
@@ -20,25 +22,27 @@ public class AuthorizationManagerTest {
 	public void setup() throws Exception {
 		test = new AuthorizationManager();
 
-		baseUserRole = new Role("BASE_USER");
-		advancedUserRole = new Role("ADVANCED_USER");
-		adminUserRole = new Role("ADMIN_USER");
+		baseRole = new Role("BASE_USER");
+		advancedRole = new Role("ADVANCED_USER");
+		adminRole = new Role("ADMIN_USER");
 		superHeroRole = new Role("SUPER_HERO");
 
 		// all users have BASE_USER role by default
 		user = new User("username");
-		user.getRoles().add(baseUserRole);
+		user.getRoles().add(baseRole);
+
+		project = new Project("project");
 	}
 
 	@Test
 	public void isAuthorized_defaultRoles_true() throws Exception {
-		assertThat(test.isAuthorized(user, baseUserRole), is(true));
+		assertThat(test.isAuthorized(user, baseRole), is(true));
 	}
 
 	@Test
 	public void isAuthorized_defaultRoles_false() throws Exception {
-		assertThat(test.isAuthorized(user, advancedUserRole), is(false));
-		assertThat(test.isAuthorized(user, adminUserRole), is(false));
+		assertThat(test.isAuthorized(user, advancedRole), is(false));
+		assertThat(test.isAuthorized(user, adminRole), is(false));
 		assertThat(test.isAuthorized(user, superHeroRole), is(false));
 	}
 
@@ -53,20 +57,39 @@ public class AuthorizationManagerTest {
 	public void isAuthorized_false() throws Exception {
 		user.getRoles().add(superHeroRole);
 
-		assertThat(test.isAuthorized(user, adminUserRole), is(false));
+		assertThat(test.isAuthorized(user, adminRole), is(false));
 	}
 
 	@Test
 	public void isAuthorized_multipleRoles_true() throws Exception {
 		user.getRoles().add(superHeroRole);
 
-		assertThat(test.isAuthorized(user, adminUserRole, superHeroRole), is(true));
+		assertThat(test.isAuthorized(user, adminRole, superHeroRole), is(true));
 	}
 
 	@Test
 	public void isAuthorized_multipleRoles_false() throws Exception {
 		user.getRoles().add(superHeroRole);
 
-		assertThat(test.isAuthorized(user, adminUserRole, advancedUserRole), is(false));
+		assertThat(test.isAuthorized(user, adminRole, advancedRole), is(false));
+	}
+
+	@Test
+	public void isAuthorized_project_true() throws Exception {
+		project.addRoleForUser(user, adminRole);
+
+		assertThat(test.isAuthorized(user, project, adminRole), is(true));
+	}
+
+	@Test
+	public void isAuthorized_project_false() throws Exception {
+		assertThat(test.isAuthorized(user, project, adminRole), is(false));
+	}
+
+	@Test
+	public void isAuthorized_project_true_userRole() throws Exception {
+		user.getRoles().add(adminRole);
+
+		assertThat(test.isAuthorized(user, project, adminRole), is(true));
 	}
 }
