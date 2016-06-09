@@ -1,11 +1,25 @@
 package satori.rbac;
 
+import java.util.Set;
+
+import com.google.common.collect.Sets;
+
 public class Role {
 
 	private String name;
+	private Set<Permission> permissions = Sets.newHashSet();
 
 	public Role(String name) {
 		this.name = name;
+	}
+
+	public Set<Permission> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(Set<Permission> permissions) {
+		this.permissions = permissions;
+
 	}
 
 	@Override

@@ -27,6 +27,14 @@ public class Project {
 				.collect(Collectors.toSet());
 	}
 
+	public Set<Permission> permissionsForUser(User user) {
+		return projectRoles
+			.stream()
+			.filter(p -> p.getUser().equals(user))
+			.flatMap(p -> p.getRole().getPermissions().stream())
+			.collect(Collectors.toSet());
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

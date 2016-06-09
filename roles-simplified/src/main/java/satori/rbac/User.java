@@ -2,6 +2,7 @@ package satori.rbac;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class User {
 
@@ -14,6 +15,12 @@ public class User {
 
 	public Set<Role> getRoles() {
 		return roles;
+	}
+
+	public Set<Permission> getPermissions() {
+		return roles.stream()
+			.flatMap(r -> r.getPermissions().stream())
+			.collect(Collectors.toSet());
 	}
 
 	@Override

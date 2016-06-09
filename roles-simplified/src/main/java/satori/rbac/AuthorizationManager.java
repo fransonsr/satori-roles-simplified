@@ -1,46 +1,37 @@
 package satori.rbac;
 
-import java.util.HashSet;
 import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 public class AuthorizationManager {
 
 	/**
-	 * Authorizes a User if it contains any of the specified roles.
+	 * Authorizes a User if it has any of the specified permissions.
 	 * @param user user to authorize
-	 * @param roles set of allowed Role
-	 * @return true if user is authorized based on the set of allowed Role
+	 * @param permissions set of permissions required
+	 * @return true if the user is authorized based on the set of required permissions
 	 */
-	public boolean isAuthorized(User user, Role... roles) {
-		Set<Role> actualRoles = user.getRoles();
-		return isAuthorized(actualRoles, roles);
+	public boolean isAuthorized(User user, Permission... permissions) {
+		Set<Permission> intersection = Sets.intersection(user.getPermissions(), Sets.newHashSet(permissions));
+		return !intersection.isEmpty();
 	}
 
 	/**
-	 * Authorizes a User if it contains any of the specified roles in the
-	 * union of the set of user roles and project-level roles for the user.
+	 * Authorizes the user if it has any of the required permissions in the union of the set of
+	 * user roles and project-level roles assigned to the user.
 	 * @param user user to authorize
 	 * @param project project to authorize against
-	 * @param roles set of allowed Role
-	 * @return true if the user is authorized based on the set of allowed Role and
-	 * any project roles the user may have
+	 * @param permissions set of required permissions
+	 * @return true if the user is authorized based on the set of permissions required
 	 */
-	public boolean isAuthorized(User user, Project project, Role... roles) {
-		Set<Role> actualRoles = new HashSet<>();
-		actualRoles.addAll(user.getRoles());
-		actualRoles.addAll(project.rolesForUser(user));
+	public boolean isAuthorized(User user, Project project, Permission... permissions) {
+		Set<Permission> actualPermissions = Sets.newHashSet();
+		actualPermissions.addAll(user.getPermissions());
+		actualPermissions.addAll(project.permissionsForUser(user));
 
-		return isAuthorized(actualRoles, roles);
-	}
-
-	private boolean isAuthorized(Set<Role> actualRoles, Role[] roles) {
-		for (Role role : roles) {
-			if (actualRoles.contains(role)) {
-				return true;
-			}
-		}
-
-		return false;
+		Set<Permission> intersection = Sets.intersection(actualPermissions, Sets.newHashSet(permissions));
+		return !intersection.isEmpty();
 	}
 
 }
